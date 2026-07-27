@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📐 SAT Math Diagnostic Test - Grade 12</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        body.en-mode { font-family: 'Inter', sans-serif; direction: ltr; text-align: left; }
+        .correct { background-color: #dcfce7 !important; border-color: #16a34a !important; }
+        .incorrect { background-color: #fee2e2 !important; border-color: #dc2626 !important; }
+        .formula { font-family: 'Times New Roman', serif; font-style: italic; direction: ltr; display: inline-block; }
+        .timer-warning { color: #dc2626 !important; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.7; } }
+        @media print { .no-print { display: none !important; } }
+        .success-badge { 
+            display: inline-block; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .grade-excellent { background: #dcfce7; color: #166534; }
+        .grade-good { background: #fef3c7; color: #92400e; }
+        .grade-pass { background: #dbeafe; color: #1e40af; }
+        .grade-fail { background: #fee2e2; color: #991b1b; }
+        
+        .lang-switch {
+            position: fixed; top: 16px; left: 16px; z-index: 100;
+            background: white; padding: 6px; border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; gap: 4px;
+            border: 2px solid #4F46E5;
+        }
+        body.en-mode .lang-switch { left: auto; right: 16px; }
+        .lang-btn {
+            padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: bold;
+            transition: all 0.3s; border: none; font-size: 0.875rem;
+            background: transparent; color: #6b7280;
+        }
+        .lang-btn.active { background: #4F46E5; color: white; box-shadow: 0 2px 6px rgba(79,70,229,0.4); }
+        .lang-btn:hover:not(.active) { background: #eef2ff; color: #4F46E5; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 md:p-8 min-h-screen">
+
+    <!-- Language Switcher -->
+    <div class="lang-switch no-print">
+        <button class="lang-btn active" onclick="setLanguage('ar')" id="btn-ar">عربي</button>
+        <button class="lang-btn" onclick="setLanguage('en')" id="btn-en">EN</button>
+    </div>
+
+    <!-- Timer -->
+    <div id="timer-container" class="max-w-4xl mx-auto mb-4 text-center no-print">
+        <div class="bg-white p-4 rounded-xl shadow-md inline-block border-2 border-indigo-100">
+            <span class="text-gray-600 ml-2" data-ar="⏱️ الوقت المتبقي:" data-en="⏱️ Time Remaining:">⏱️ الوقت المتبقي:</span>
+            <span id="timer" class="text-2xl font-bold text-indigo-600 font-mono">60:00</span>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="max-w-4xl mx-auto mb-6 flex flex-wrap gap-3 justify-center no-print">
+        <button onclick="toggleAnswers()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-medium transition shadow cursor-pointer" data-ar="👁️ إظهار / إخفاء الإجابات النموذجية" data-en="👁️ Show / Hide Model Answers">👁️ إظهار / إخفاء الإجابات النموذجية</button>
+        <button onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg font-medium transition shadow cursor-pointer" data-ar="🖨️ طباعة / حفظ كـ PDF" data-en="🖨️ Print / Save as PDF">🖨️ طباعة / حفظ كـ PDF</button>
+    </div>
+
+    <!-- Header -->
+    <header class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-md mb-8 border-r-4 border-indigo-600">
+        <div class="text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" data-ar="📐 اختبار تشخيصي: رياضيات السات (SAT Math)" data-en="📐 SAT Math Diagnostic Test">📐 اختبار تشخيصي: رياضيات السات (SAT Math)</h1>
+            <h2 class="text-lg text-indigo-600 font-semibold" data-ar="الصف الثاني عشر - تحديد المستوى" data-en="Grade 12 - Placement Test">الصف الثاني عشر - تحديد المستوى</h2>
+            <p class="text-sm text-gray-600 mt-2" data-ar="ملاحظة: يُسمح باستخدام الآلة الحاسبة (مثل Desmos). الأسئلة باللغة الإنجليزية كما في الامتحان الرسمي." data-en="Note: Calculator (e.g., Desmos) is allowed. Questions are in English as in the official exam.">ملاحظة: يُسمح باستخدام الآلة الحاسبة (مثل Desmos). الأسئلة باللغة الإنجليزية كما في الامتحان الرسمي.</p>
+        </div>
+        <div class="mt-4 flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+            <span><span data-ar="📅 التاريخ:" data-en="📅 Date:">📅 التاريخ:</span> <input type="text" class="border-b border-gray-400 bg-transparent w-28 text-center"></span>
+            <span><span data-ar="👤 الاسم:" data-en="👤 Name:">👤 الاسم:</span> <input type="text" id="studentName" class="border-b border-gray-400 bg-transparent w-32 text-center" placeholder="أدخل الاسم"></span>
+            <span><span data-ar="🏫 الشعبة:" data-en="🏫 Class:">🏫 الشعبة:</span> <input type="text" id="studentClass" class="border-b border-gray-400 bg-transparent w-28 text-center" placeholder="الفصل"></span>
+            <span><span data-ar="⏱️ المدة: 60 دقيقة" data-en="⏱️ Duration: 60 min">⏱️ المدة: 60 دقيقة</span></span>
+            <span><span data-ar="📊 المجموع: 100 درجة" data-en="📊 Total: 100 Marks">📊 المجموع: 100 درجة</span></span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto space-y-8">
+
+        <!-- Section 1: Algebra (Linear Equations & Systems) -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-indigo-700" data-ar="🔹 القسم الأول: الجبر (المعادلات الخطية والأنظمة)" data-en="🔹 Section 1: Algebra (Linear Equations & Systems)">🔹 القسم الأول: الجبر (المعادلات الخطية والأنظمة)</h2>
+            <ol id="section1-list" class="space-y-4 text-sm">
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-1">
+                    <strong>1.</strong> <span data-ar="If 3x - 7 = 14, what is the value of 6x?" data-en="If 3x - 7 = 14, what is the value of 6x?">If 3x - 7 = 14, what is the value of 6x?</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q1" value="a" class="ml-2"> <span data-ar="أ) 28" data-en="A) 28">أ) 28</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q1" value="b" class="ml-2"> <span data-ar="ب) 35" data-en="B) 35">ب) 35</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q1" value="c" class="ml-2"> <span data-ar="ج) 42" data-en="C) 42">ج) 42</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q1" value="d" class="ml-2"> <span data-ar="د) 49" data-en="D) 49">د) 49</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ج) 42 (لأن x=7، إذن 6×7=42)" data-en="✅ Answer: C) 42 (Since x=7, then 6×7=42)">✅ الإجابة: ج) 42 (لأن x=7، إذن 6×7=42)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-2">
+                    <strong>2.</strong> <span data-ar="2x + 3y = 12 و 4x - 3y = 6. ما قيمة x؟" data-en="2x + 3y = 12 and 4x - 3y = 6. What is the value of x?">2x + 3y = 12 and 4x - 3y = 6. What is the value of x?</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q2" value="a" class="ml-2"> <span data-ar="أ) 2" data-en="A) 2">أ) 2</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q2" value="b" class="ml-2"> <span data-ar="ب) 3" data-en="B) 3">ب) 3</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q2" value="c" class="ml-2"> <span data-ar="ج) 4" data-en="C) 4">ج) 4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q2" value="d" class="ml-2"> <span data-ar="د) 6" data-en="D) 6">د) 6</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) 3 (بجمع المعادلتين: 6x = 18 إذن x = 3)" data-en="✅ Answer: B) 3 (Adding equations: 6x = 18, so x = 3)">✅ الإجابة: ب) 3 (بجمع المعادلتين: 6x = 18 إذن x = 3)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-3">
+                    <strong>3.</strong> <span data-ar="يرسم سباك رسوماً ثابتة 80$ بالإضافة إلى 45$ لكل ساعة عمل. أي دالة تمثل التكلفة C(h) لـ h ساعات؟" data-en="A plumber charges a flat fee of $80 plus $45 per hour. Which function represents total cost C(h) for h hours?">يرسم سباك رسوماً ثابتة 80$ بالإضافة إلى 45$ لكل ساعة عمل. أي دالة تمثل التكلفة C(h) لـ h ساعات؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q3" value="a" class="ml-2"> <span data-ar="أ) C(h) = 45h + 80" data-en="A) C(h) = 45h + 80">أ) C(h) = 45h + 80</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q3" value="b" class="ml-2"> <span data-ar="ب) C(h) = 80h + 45" data-en="B) C(h) = 80h + 45">ب) C(h) = 80h + 45</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q3" value="c" class="ml-2"> <span data-ar="ج) C(h) = 125h" data-en="C) C(h) = 125h">ج) C(h) = 125h</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q3" value="d" class="ml-2"> <span data-ar="د) C(h) = 45h - 80" data-en="D) C(h) = 45h - 80">د) C(h) = 45h - 80</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: أ) C(h) = 45h + 80" data-en="✅ Answer: A) C(h) = 45h + 80">✅ الإجابة: أ) C(h) = 45h + 80</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-4">
+                    <strong>4.</strong> <span data-ar="خط مستقيم يمر بالنقطتين (0, 5) و (2, 11). ما هي معادلته؟" data-en="A line passes through points (0, 5) and (2, 11). What is its equation?">خط مستقيم يمر بالنقطتين (0, 5) و (2, 11). ما هي معادلته؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q4" value="a" class="ml-2"> <span data-ar="أ) y = 3x + 5" data-en="A) y = 3x + 5">أ) y = 3x + 5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q4" value="b" class="ml-2"> <span data-ar="ب) y = 5x + 3" data-en="B) y = 5x + 3">ب) y = 5x + 3</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q4" value="c" class="ml-2"> <span data-ar="ج) y = 2x + 5" data-en="C) y = 2x + 5">ج) y = 2x + 5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q4" value="d" class="ml-2"> <span data-ar="د) y = 6x + 5" data-en="D) y = 6x + 5">د) y = 6x + 5</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: أ) الميل = (11-5)/(2-0) = 3، والجزء المقطوع = 5" data-en="✅ Answer: A) Slope = (11-5)/(2-0) = 3, y-intercept = 5">✅ الإجابة: أ) الميل = (11-5)/(2-0) = 3، والجزء المقطوع = 5</div>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Section 2: Advanced Math (Nonlinear & Functions) -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-indigo-700" data-ar="🔹 القسم الثاني: الرياضيات المتقدمة (غير الخطية والدوال)" data-en="🔹 Section 2: Advanced Math (Nonlinear & Functions)">🔹 القسم الثاني: الرياضيات المتقدمة (غير الخطية والدوال)</h2>
+            <ol id="section2-list" class="space-y-4 text-sm">
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-5">
+                    <strong>5.</strong> <span data-ar="ما هو مجموع حلول المعادلة x² - 8x + 15 = 0؟" data-en="What is the sum of the solutions to x² - 8x + 15 = 0?">ما هو مجموع حلول المعادلة x² - 8x + 15 = 0؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q5" value="a" class="ml-2"> <span data-ar="أ) 3" data-en="A) 3">أ) 3</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q5" value="b" class="ml-2"> <span data-ar="ب) 5" data-en="B) 5">ب) 5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q5" value="c" class="ml-2"> <span data-ar="ج) 8" data-en="C) 8">ج) 8</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q5" value="d" class="ml-2"> <span data-ar="د) 15" data-en="D) 15">د) 15</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ج) 8 (مجموع الجذور = -b/a = 8)" data-en="✅ Answer: C) 8 (Sum of roots = -b/a = 8)">✅ الإجابة: ج) 8 (مجموع الجذور = -b/a = 8)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-6">
+                    <strong>6.</strong> <span data-ar="ما الذي يكافئ الكسر (x² - 16) / (x - 4) عندما x ≠ 4؟" data-en="What is equivalent to (x² - 16) / (x - 4) when x ≠ 4?">ما الذي يكافئ الكسر (x² - 16) / (x - 4) عندما x ≠ 4؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q6" value="a" class="ml-2"> <span data-ar="أ) x - 4" data-en="A) x - 4">أ) x - 4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q6" value="b" class="ml-2"> <span data-ar="ب) x + 4" data-en="B) x + 4">ب) x + 4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q6" value="c" class="ml-2"> <span data-ar="ج) x² + 4" data-en="C) x² + 4">ج) x² + 4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q6" value="d" class="ml-2"> <span data-ar="د) x - 16" data-en="D) x - 16">د) x - 16</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) x + 4 (بتحليل فرق المربعين)" data-en="✅ Answer: B) x + 4 (By factoring difference of squares)">✅ الإجابة: ب) x + 4 (بتحليل فرق المربعين)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-7">
+                    <strong>7.</strong> <span data-ar="يُعطى نمو البكتيريا بالدالة P(t) = 500(1.06)^t. ماذا يمثل الرقم 0.06؟" data-en="Bacteria growth is modeled by P(t) = 500(1.06)^t. What does 0.06 represent?">يُعطى نمو البكتيريا بالدالة P(t) = 500(1.06)^t. ماذا يمثل الرقم 0.06؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q7" value="a" class="ml-2"> <span data-ar="أ) العدد الأولي للبكتيريا" data-en="A) Initial population">أ) العدد الأولي للبكتيريا</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q7" value="b" class="ml-2"> <span data-ar="ب) معدل النمو الساعي" data-en="B) Hourly growth rate">ب) معدل النمو الساعي</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q7" value="c" class="ml-2"> <span data-ar="ج) إجمالي الساعات" data-en="C) Total hours">ج) إجمالي الساعات</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q7" value="d" class="ml-2"> <span data-ar="د) السعة الاستيعابية" data-en="D) Carrying capacity">د) السعة الاستيعابية</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) معدل النمو الساعي (6%)" data-en="✅ Answer: B) Hourly growth rate (6%)">✅ الإجابة: ب) معدل النمو الساعي (6%)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-8">
+                    <strong>8.</strong> <span data-ar="إذا كانت f(x) = 2x² - 3 و g(x) = x + 1، فما قيمة f(g(2))؟" data-en="If f(x) = 2x² - 3 and g(x) = x + 1, what is f(g(2))?">إذا كانت f(x) = 2x² - 3 و g(x) = x + 1، فما قيمة f(g(2))؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q8" value="a" class="ml-2"> <span data-ar="أ) 5" data-en="A) 5">أ) 5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q8" value="b" class="ml-2"> <span data-ar="ب) 15" data-en="B) 15">ب) 15</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q8" value="c" class="ml-2"> <span data-ar="ج) 21" data-en="C) 21">ج) 21</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q8" value="d" class="ml-2"> <span data-ar="د) 24" data-en="D) 24">د) 24</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) 15 (g(2)=3، ثم f(3) = 2(9)-3 = 15)" data-en="✅ Answer: B) 15 (g(2)=3, then f(3) = 2(9)-3 = 15)">✅ الإجابة: ب) 15 (g(2)=3، ثم f(3) = 2(9)-3 = 15)</div>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Section 3: Problem-Solving and Data Analysis -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-indigo-700" data-ar="🔹 القسم الثالث: حل المشكلات وتحليل البيانات" data-en="🔹 Section 3: Problem-Solving and Data Analysis">🔹 القسم الثالث: حل المشكلات وتحليل البيانات</h2>
+            <ol id="section3-list" class="space-y-4 text-sm">
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-9">
+                    <strong>9.</strong> <span data-ar="سعر لابتوب 1000$، زاد بنسبة 20% ثم خُصم 10% من السعر الجديد. ما السعر النهائي؟" data-en="A laptop costs $1000. Price increases by 20%, then a 10% discount is applied. Final price?">سعر لابتوب 1000$، زاد بنسبة 20% ثم خُصم 10% من السعر الجديد. ما السعر النهائي؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q9" value="a" class="ml-2"> <span data-ar="أ) 1000$" data-en="A) $1000">أ) 1000$</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q9" value="b" class="ml-2"> <span data-ar="ب) 1060$" data-en="B) $1060">ب) 1060$</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q9" value="c" class="ml-2"> <span data-ar="ج) 1080$" data-en="C) $1080">ج) 1080$</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q9" value="d" class="ml-2"> <span data-ar="د) 1100$" data-en="D) $1100">د) 1100$</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ج) 1080$ (1000×1.2 = 1200، ثم 1200×0.9 = 1080)" data-en="✅ Answer: C) $1080 (1000×1.2 = 1200, then 1200×0.9 = 1080)">✅ الإجابة: ج) 1080$ (1000×1.2 = 1200، ثم 1200×0.9 = 1080)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-10">
+                    <strong>10.</strong> <span data-ar="نسبة الأولاد إلى البنات في نادي هي 3:5. إذا كان العدد الكلي 120، فكم عدد البنات؟" data-en="Ratio of boys to girls is 3:5. Total students = 120. How many girls?">نسبة الأولاد إلى البنات في نادي هي 3:5. إذا كان العدد الكلي 120، فكم عدد البنات؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q10" value="a" class="ml-2"> <span data-ar="أ) 45" data-en="A) 45">أ) 45</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q10" value="b" class="ml-2"> <span data-ar="ب) 60" data-en="B) 60">ب) 60</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q10" value="c" class="ml-2"> <span data-ar="ج) 75" data-en="C) 75">ج) 75</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q10" value="d" class="ml-2"> <span data-ar="د) 80" data-en="D) 80">د) 80</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ج) 75 (مجموع النسب 8، نصيب البنات 5/8 × 120 = 75)" data-en="✅ Answer: C) 75 (Total ratio parts = 8, girls = 5/8 × 120 = 75)">✅ الإجابة: ج) 75 (مجموع النسب 8، نصيب البنات 5/8 × 120 = 75)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-11">
+                    <strong>11.</strong> <span data-ar="متوسط 5 أعداد هو 20. عند إضافة عدد سادس، أصبح المتوسط 22. ما هو العدد السادس؟" data-en="Mean of 5 numbers is 20. Adding a 6th number makes the mean 22. What is the 6th number?">متوسط 5 أعداد هو 20. عند إضافة عدد سادس، أصبح المتوسط 22. ما هو العدد السادس؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q11" value="a" class="ml-2"> <span data-ar="أ) 22" data-en="A) 22">أ) 22</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q11" value="b" class="ml-2"> <span data-ar="ب) 28" data-en="B) 28">ب) 28</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q11" value="c" class="ml-2"> <span data-ar="ج) 30" data-en="C) 30">ج) 30</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q11" value="d" class="ml-2"> <span data-ar="د) 32" data-en="D) 32">د) 32</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: د) 32 (مجموع الـ 5 = 100، مجموع الـ 6 = 132، الفرق = 32)" data-en="✅ Answer: D) 32 (Sum of 5 = 100, Sum of 6 = 132, Difference = 32)">✅ الإجابة: د) 32 (مجموع الـ 5 = 100، مجموع الـ 6 = 132، الفرق = 32)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-12">
+                    <strong>12.</strong> <span data-ar="معادلة خط الاتجاه الأفضل هي y = 4.5x + 60. ما أفضل تفسير للميل (4.5)؟" data-en="Line of best fit is y = 4.5x + 60. Best interpretation of slope (4.5)?">معادلة خط الاتجاه الأفضل هي y = 4.5x + 60. ما أفضل تفسير للميل (4.5)؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q12" value="a" class="ml-2"> <span data-ar="أ) الطالب الذي يدرس 0 ساعة يتوقع أن يحصل على 60" data-en="A) 0 hours studied yields a score of 60">أ) الطالب الذي يدرس 0 ساعة يتوقع أن يحصل على 60</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q12" value="b" class="ml-2"> <span data-ar="ب) كل ساعة دراسة إضافية ترفع الدرجة بمقدار 4.5 نقطة" data-en="B) Each additional hour of study increases score by 4.5 points">ب) كل ساعة دراسة إضافية ترفع الدرجة بمقدار 4.5 نقطة</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q12" value="c" class="ml-2"> <span data-ar="ج) أقصى درجة ممكنة هي 4.5" data-en="C) Maximum possible score is 4.5">ج) أقصى درجة ممكنة هي 4.5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q12" value="d" class="ml-2"> <span data-ar="د) كل 4.5 ساعات دراسة ترفع الدرجة نقطة واحدة" data-en="D) Every 4.5 hours of study increases score by 1 point">د) كل 4.5 ساعات دراسة ترفع الدرجة نقطة واحدة</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) الميل يمثل معدل التغير في الدرجة لكل ساعة دراسة" data-en="✅ Answer: B) Slope represents rate of change in score per hour of study">✅ الإجابة: ب) الميل يمثل معدل التغير في الدرجة لكل ساعة دراسة</div>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Section 4: Geometry and Trigonometry -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-indigo-700" data-ar="🔹 القسم الرابع: الهندسة وحساب المثلثات" data-en="🔹 Section 4: Geometry and Trigonometry">🔹 القسم الرابع: الهندسة وحساب المثلثات</h2>
+            <ol id="section4-list" class="space-y-4 text-sm">
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-13">
+                    <strong>13.</strong> <span data-ar="مساحة دائرة هي 81π سم². ما محيط هذه الدائرة؟" data-en="Area of a circle is 81π cm². What is its circumference?">مساحة دائرة هي 81π سم². ما محيط هذه الدائرة؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q13" value="a" class="ml-2"> <span data-ar="أ) 9π" data-en="A) 9π">أ) 9π</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q13" value="b" class="ml-2"> <span data-ar="ب) 18π" data-en="B) 18π">ب) 18π</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q13" value="c" class="ml-2"> <span data-ar="ج) 81π" data-en="C) 81π">ج) 81π</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q13" value="d" class="ml-2"> <span data-ar="د) 162π" data-en="D) 162π">د) 162π</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) 18π (نصف القطر r=9، المحيط = 2πr = 18π)" data-en="✅ Answer: B) 18π (Radius r=9, Circumference = 2πr = 18π)">✅ الإجابة: ب) 18π (نصف القطر r=9، المحيط = 2πr = 18π)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-14">
+                    <strong>14.</strong> <span data-ar="في مثلث قائم، طول الضلع المقابل للزاوية θ هو 5، والوتر 13. ما قيمة cos(θ)؟" data-en="In a right triangle, opposite side to θ is 5, hypotenuse is 13. What is cos(θ)?">في مثلث قائم، طول الضلع المقابل للزاوية θ هو 5، والوتر 13. ما قيمة cos(θ)؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q14" value="a" class="ml-2"> <span data-ar="أ) 5/13" data-en="A) 5/13">أ) 5/13</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q14" value="b" class="ml-2"> <span data-ar="ب) 12/13" data-en="B) 12/13">ب) 12/13</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q14" value="c" class="ml-2"> <span data-ar="ج) 5/12" data-en="C) 5/12">ج) 5/12</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q14" value="d" class="ml-2"> <span data-ar="د) 13/12" data-en="D) 13/12">د) 13/12</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) 12/13 (الضلع المجاور = √(13²-5²) = 12، وجيب التمام = مجاور/وتر)" data-en="✅ Answer: B) 12/13 (Adjacent = √(13²-5²) = 12, cos = adj/hyp)">✅ الإجابة: ب) 12/13 (الضلع المجاور = √(13²-5²) = 12، وجيب التمام = مجاور/وتر)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-15">
+                    <strong>15.</strong> <span data-ar="أسطوانة قائمة نصف قطرها 3 بوصات وحجمها 90π بوصة مكعبة. ما ارتفاعها؟" data-en="Right cylinder has radius 3 inches and volume 90π cubic inches. What is its height?">أسطوانة قائمة نصف قطرها 3 بوصات وحجمها 90π بوصة مكعبة. ما ارتفاعها؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q15" value="a" class="ml-2"> <span data-ar="أ) 5" data-en="A) 5">أ) 5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q15" value="b" class="ml-2"> <span data-ar="ب) 10" data-en="B) 10">ب) 10</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q15" value="c" class="ml-2"> <span data-ar="ج) 15" data-en="C) 15">ج) 15</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q15" value="d" class="ml-2"> <span data-ar="د) 30" data-en="D) 30">د) 30</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) 10 (الحجم = πr²h → 90π = π(9)h → h = 10)" data-en="✅ Answer: B) 10 (Volume = πr²h → 90π = π(9)h → h = 10)">✅ الإجابة: ب) 10 (الحجم = πr²h → 90π = π(9)h → h = 10)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-16">
+                    <strong>16.</strong> <span data-ar="معادلة دائرة هي x² + y² - 6x + 4y = 12. ما نصف قطر هذه الدائرة؟" data-en="Circle equation is x² + y² - 6x + 4y = 12. What is its radius?">معادلة دائرة هي x² + y² - 6x + 4y = 12. ما نصف قطر هذه الدائرة؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q16" value="a" class="ml-2"> <span data-ar="أ) 3" data-en="A) 3">أ) 3</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q16" value="b" class="ml-2"> <span data-ar="ب) 4" data-en="B) 4">ب) 4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q16" value="c" class="ml-2"> <span data-ar="ج) 5" data-en="C) 5">ج) 5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q16" value="d" class="ml-2"> <span data-ar="د) 25" data-en="D) 25">د) 25</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ج) 5 (بإكمال المربع: (x-3)² + (y+2)² = 25، إذن r = √25 = 5)" data-en="✅ Answer: C) 5 (Completing square: (x-3)² + (y+2)² = 25, so r = √25 = 5)">✅ الإجابة: ج) 5 (بإكمال المربع: (x-3)² + (y+2)² = 25، إذن r = √25 = 5)</div>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Section 5: Advanced SAT Concepts -->
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-indigo-700" data-ar="🔹 القسم الخامس: مفاهيم سات متقدمة (الأعداد المركبة والدوال)" data-en="🔹 Section 5: Advanced SAT Concepts (Complex Numbers & Functions)">🔹 القسم الخامس: مفاهيم سات متقدمة (الأعداد المركبة والدوال)</h2>
+            <ol id="section5-list" class="space-y-4 text-sm">
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-17">
+                    <strong>17.</strong> <span data-ar="إذا كانت i = √-1، فما قيمة (3 + 2i)(1 - i)؟" data-en="If i = √-1, what is the value of (3 + 2i)(1 - i)?">إذا كانت i = √-1، فما قيمة (3 + 2i)(1 - i)؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q17" value="a" class="ml-2"> <span data-ar="أ) 5 - i" data-en="A) 5 - i">أ) 5 - i</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q17" value="b" class="ml-2"> <span data-ar="ب) 1 - i" data-en="B) 1 - i">ب) 1 - i</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q17" value="c" class="ml-2"> <span data-ar="ج) 5 + i" data-en="C) 5 + i">ج) 5 + i</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q17" value="d" class="ml-2"> <span data-ar="د) 1 + 5i" data-en="D) 1 + 5i">د) 1 + 5i</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: أ) 5 - i (بفك الأقواس: 3 - 3i + 2i - 2i² = 3 - i + 2 = 5 - i)" data-en="✅ Answer: A) 5 - i (Expanding: 3 - 3i + 2i - 2i² = 3 - i + 2 = 5 - i)">✅ الإجابة: أ) 5 - i (بفك الأقواس: 3 - 3i + 2i - 2i² = 3 - i + 2 = 5 - i)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-18">
+                    <strong>18.</strong> <span data-ar="يمكن إعادة كتابة الدالة f(x) = x² - 4x + 7 على الصورة f(x) = (x - h)² + k. ما قيمة k؟" data-en="Function f(x) = x² - 4x + 7 can be rewritten as f(x) = (x - h)² + k. What is k?">يمكن إعادة كتابة الدالة f(x) = x² - 4x + 7 على الصورة f(x) = (x - h)² + k. ما قيمة k؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q18" value="a" class="ml-2"> <span data-ar="أ) 2" data-en="A) 2">أ) 2</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q18" value="b" class="ml-2"> <span data-ar="ب) 3" data-en="B) 3">ب) 3</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q18" value="c" class="ml-2"> <span data-ar="ج) 4" data-en="C) 4">ج) 4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q18" value="d" class="ml-2"> <span data-ar="د) 7" data-en="D) 7">د) 7</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ب) 3 (بإكمال المربع: (x² - 4x + 4) + 3 = (x-2)² + 3)" data-en="✅ Answer: B) 3 (Completing square: (x² - 4x + 4) + 3 = (x-2)² + 3)">✅ الإجابة: ب) 3 (بإكمال المربع: (x² - 4x + 4) + 3 = (x-2)² + 3)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-19">
+                    <strong>19.</strong> <span data-ar="مجموعة بيانات متوسطها 50 والانحراف المعياري 5. إذا أُضيفت قيمة 65، كيف سيؤثر ذلك على الانحراف المعياري؟" data-en="Data set has mean 50 and standard deviation 5. If value 65 is added, how does it affect standard deviation?">مجموعة بيانات متوسطها 50 والانحراف المعياري 5. إذا أُضيفت قيمة 65، كيف سيؤثر ذلك على الانحراف المعياري؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q19" value="a" class="ml-2"> <span data-ar="أ) سيقل" data-en="A) It will decrease">أ) سيقل</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q19" value="b" class="ml-2"> <span data-ar="ب) سيبقى كما هو" data-en="B) It will remain the same">ب) سيبقى كما هو</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q19" value="c" class="ml-2"> <span data-ar="ج) سيزداد" data-en="C) It will increase">ج) سيزداد</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q19" value="d" class="ml-2"> <span data-ar="د) سيصبح صفراً" data-en="D) It will become zero">د) سيصبح صفراً</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: ج) سيزداد (لأن 65 تبعد 3 انحرافات معيارية عن المتوسط، مما يزيد الانتشار)" data-en="✅ Answer: C) It will increase (65 is 3 SDs away from mean, increasing spread)">✅ الإجابة: ج) سيزداد (لأن 65 تبعد 3 انحرافات معيارية عن المتوسط، مما يزيد الانتشار)</div>
+                </li>
+                <li class="border-r-4 border-indigo-500 pr-4 py-2" id="q-20">
+                    <strong>20.</strong> <span data-ar="إذا كانت sin(θ) = 3/5 و θ في الربع الأول، فما قيمة tan(θ)؟" data-en="If sin(θ) = 3/5 and θ is in the first quadrant, what is tan(θ)?">إذا كانت sin(θ) = 3/5 و θ في الربع الأول، فما قيمة tan(θ)؟</span><br>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q20" value="a" class="ml-2"> <span data-ar="أ) 3/4" data-en="A) 3/4">أ) 3/4</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q20" value="b" class="ml-2"> <span data-ar="ب) 4/3" data-en="B) 4/3">ب) 4/3</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q20" value="c" class="ml-2"> <span data-ar="ج) 4/5" data-en="C) 4/5">ج) 4/5</span></label>
+                    <label class="mr-4 cursor-pointer block mt-1"><input type="radio" name="q20" value="d" class="ml-2"> <span data-ar="د) 5/4" data-en="D) 5/4">د) 5/4</span></label>
+                    <div class="answer-box text-green-700 mt-2 font-medium hidden" data-ar="✅ الإجابة: أ) 3/4 (المقابل=3، الوتر=5، إذن المجاور=4، وظا = مقابل/مجاور = 3/4)" data-en="✅ Answer: A) 3/4 (Opp=3, Hyp=5, so Adj=4, tan = opp/adj = 3/4)">✅ الإجابة: أ) 3/4 (المقابل=3، الوتر=5، إذن المجاور=4، وظا = مقابل/مجاور = 3/4)</div>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Submit Button -->
+        <div class="text-center no-print pb-8">
+            <button onclick="gradeExam()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-lg px-10 py-4 rounded-xl font-bold shadow-xl transition transform hover:scale-105 cursor-pointer" data-ar="📝 تسليم وتصحيح الامتحان" data-en="📝 Submit & Grade Exam">📝 تسليم وتصحيح الامتحان</button>
+        </div>
+    </main>
+
+    <!-- Results Panel -->
+    <div id="results-panel" class="max-w-4xl mx-auto mt-8 bg-white p-8 rounded-2xl shadow-2xl border-t-4 border-emerald-500 hidden no-print">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center" data-ar="📊 نتائج الامتحان" data-en="📊 Exam Results">📊 نتائج الامتحان</h2>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-xl text-center"><p data-ar="اسم الطالب" data-en="Student Name">اسم الطالب</p><p id="res-name" class="font-bold text-xl text-indigo-700">-</p></div>
+            <div class="bg-purple-50 p-4 rounded-xl text-center"><p data-ar="التاريخ" data-en="Date">التاريخ</p><p id="res-date" class="font-bold text-xl text-purple-700">-</p></div>
+            <div class="bg-emerald-50 p-4 rounded-xl text-center"><p data-ar="المجموع" data-en="Total Score">المجموع</p><p id="res-total" class="font-bold text-3xl text-emerald-600">0 / 100</p></div>
+        </div>
+
+        <div class="text-center mb-6">
+            <span id="success-badge" class="success-badge grade-excellent" data-ar="ممتاز - 100%" data-en="Excellent - 100%">ممتاز - 100%</span>
+            <p id="success-percent" class="text-4xl font-bold text-emerald-600 mt-2">100%</p>
+            <p class="text-sm text-gray-500" data-ar="نسبة النجاح" data-en="Success Rate">نسبة النجاح</p>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-xl mb-6">
+            <h3 class="font-bold text-lg mb-4 text-gray-800" data-ar="📈 تفصيل الأداء حسب القسم:" data-en="📈 Performance Breakdown by Section:">📈 تفصيل الأداء حسب القسم:</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center"><span class="text-gray-700" data-ar="1. الجبر (المعادلات الخطية)" data-en="1. Algebra (Linear)">1. الجبر (المعادلات الخطية)</span><span id="sec1-score" class="font-bold text-indigo-600">0/4</span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-700" data-ar="2. الرياضيات المتقدمة (غير الخطية)" data-en="2. Advanced Math (Nonlinear)">2. الرياضيات المتقدمة (غير الخطية)</span><span id="sec2-score" class="font-bold text-indigo-600">0/4</span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-700" data-ar="3. حل المشكلات وتحليل البيانات" data-en="3. Problem-Solving & Data Analysis">3. حل المشكلات وتحليل البيانات</span><span id="sec3-score" class="font-bold text-indigo-600">0/4</span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-700" data-ar="4. الهندسة وحساب المثلثات" data-en="4. Geometry & Trigonometry">4. الهندسة وحساب المثلثات</span><span id="sec4-score" class="font-bold text-indigo-600">0/4</span></div>
+                <div class="flex justify-between items-center"><span class="text-gray-700" data-ar="5. مفاهيم سات متقدمة" data-en="5. Advanced SAT Concepts">5. مفاهيم سات متقدمة</span><span id="sec5-score" class="font-bold text-indigo-600">0/4</span></div>
+            </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <button id="sendEmailBtn" onclick="sendResultsToEmail()" class="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white text-lg px-8 py-3 rounded-xl font-bold shadow-xl transition transform hover:scale-105 cursor-pointer" data-ar="📧 إرسال النتائج للمعلم" data-en="📧 Send Results to Teacher">📧 إرسال النتائج للمعلم</button>
+            <p id="emailStatus" class="text-sm mt-2 text-center font-medium"></p>
+        </div>
+
+        <div class="flex gap-3 justify-center">
+            <button onclick="window.print()" class="bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold" data-ar="🖨️ طباعة النتائج" data-en="🖨️ Print Results">🖨️ طباعة النتائج</button>
+        </div>
+    </div>
+
+    <footer class="max-w-4xl mx-auto mt-10 mb-8 text-center text-gray-500 text-sm no-print">
+        <span data-ar="© منصة تفوقك التعليمية | اختبار تشخيصي للسات رياضيات | Mr. Mohammed Hesham" data-en="© Tafawoq Platform | SAT Math Diagnostic Test | Mr. Mohammed Hesham">© منصة تفوقك التعليمية | اختبار تشخيصي للسات رياضيات | Mr. Mohammed Hesham</span>
+    </footer>
+
+    <script>
+        // Language Switcher Function
+        function setLanguage(lang) {
+            if (lang === 'en') {
+                document.body.classList.add('en-mode');
+                document.documentElement.lang = 'en';
+                document.documentElement.dir = 'ltr';
+                document.getElementById('btn-en').classList.add('active');
+                document.getElementById('btn-ar').classList.remove('active');
+            } else {
+                document.body.classList.remove('en-mode');
+                document.documentElement.lang = 'ar';
+                document.documentElement.dir = 'rtl';
+                document.getElementById('btn-ar').classList.add('active');
+                document.getElementById('btn-en').classList.remove('active');
+            }
+            document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+        }
+
+        // EmailJS Configuration
+        const PUBLIC_KEY = "Rb3Lq8tXaFmc5YHUH";
+        const SERVICE_ID = "service_w15m64i";
+        const TEMPLATE_ID = "template_5b0u2tq";
+        const TARGET_EMAIL = "mohammedhesham872@gmail.com";
+        (function(){ emailjs.init(PUBLIC_KEY); })();
+
+        // Timer (60 minutes = 3600 seconds)
+        let timeRemaining = 3600;
+        let timerInterval;
+
+        function startTimer() {
+            document.getElementById('timer-container').style.display = 'block';
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                const timerEl = document.getElementById('timer');
+                timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                
+                if (timeRemaining <= 300) timerEl.classList.add('timer-warning');
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert(document.body.classList.contains('en-mode') ? "Time's up! The exam will be submitted automatically." : "انتهى الوقت! سيتم تسليم الامتحان تلقائياً.");
+                    gradeExam();
+                }
+            }, 1000);
+        }
+
+        function toggleAnswers() {
+            document.querySelectorAll('.answer-box').forEach(el => el.classList.toggle('hidden'));
+        }
+
+        function gradeExam() {
+            let correctCount = 0;
+            // Correct answers for the 20 SAT questions
+            const correctAnswers = ['c','b','a','a', 'c','b','b','b', 'c','c','d','b', 'b','b','b','c', 'a','b','c','a'];
+
+            let sec1 = 0, sec2 = 0, sec3 = 0, sec4 = 0, sec5 = 0;
+
+            for(let i=1; i<=20; i++){
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const li = document.getElementById(`q-${i}`);
+                const isCorrect = selected && selected.value === correctAnswers[i-1];
+                
+                if (isCorrect) {
+                    correctCount++;
+                    li.classList.add('correct');
+                    li.classList.remove('incorrect');
+                    if (i <= 4) sec1++;
+                    else if (i <= 8) sec2++;
+                    else if (i <= 12) sec3++;
+                    else if (i <= 16) sec4++;
+                    else sec5++;
+                } else {
+                    li.classList.add('incorrect');
+                    li.classList.remove('correct');
+                }
+            }
+
+            const score = (correctCount / 20) * 100;
+            const successRate = Math.round(score);
+            
+            document.getElementById('res-total').textContent = `${Math.round(score)} / 100`;
+            document.getElementById('res-name').textContent = document.getElementById('studentName').value || (document.body.classList.contains('en-mode') ? 'Student' : 'طالب');
+            document.getElementById('res-date').textContent = new Date().toLocaleDateString(document.body.classList.contains('en-mode') ? 'en-US' : 'ar-AE');
+            
+            document.getElementById('sec1-score').textContent = `${sec1}/4`;
+            document.getElementById('sec2-score').textContent = `${sec2}/4`;
+            document.getElementById('sec3-score').textContent = `${sec3}/4`;
+            document.getElementById('sec4-score').textContent = `${sec4}/4`;
+            document.getElementById('sec5-score').textContent = `${sec5}/4`;
+            
+            const badge = document.getElementById('success-badge');
+            const percent = document.getElementById('success-percent');
+            percent.textContent = `${successRate}%`;
+            
+            if(document.body.classList.contains('en-mode')) {
+                if(successRate >= 90) { badge.textContent = 'Excellent'; badge.className = 'success-badge grade-excellent'; } 
+                else if(successRate >= 75) { badge.textContent = 'Very Good'; badge.className = 'success-badge grade-good'; } 
+                else if(successRate >= 50) { badge.textContent = 'Good'; badge.className = 'success-badge grade-pass'; } 
+                else { badge.textContent = 'Needs Improvement'; badge.className = 'success-badge grade-fail'; }
+            } else {
+                if(successRate >= 90) { badge.textContent = 'ممتاز'; badge.className = 'success-badge grade-excellent'; } 
+                else if(successRate >= 75) { badge.textContent = 'جيد جداً'; badge.className = 'success-badge grade-good'; } 
+                else if(successRate >= 50) { badge.textContent = 'جيد'; badge.className = 'success-badge grade-pass'; } 
+                else { badge.textContent = 'يحتاج تحسين'; badge.className = 'success-badge grade-fail'; }
+            }
+            
+            document.getElementById('results-panel').classList.remove('hidden');
+            document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('sendEmailBtn').classList.remove('hidden');
+        }
+
+        function sendResultsToEmail() {
+            const btn = document.getElementById('sendEmailBtn');
+            const status = document.getElementById('emailStatus');
+            btn.disabled = true;
+            btn.textContent = document.body.classList.contains('en-mode') ? '⏳ Sending...' : '⏳ جاري الإرسال...';
+
+            const name = document.getElementById('studentName').value || 'N/A';
+            const studentClass = document.getElementById('studentClass').value || (document.body.classList.contains('en-mode') ? 'Not specified' : 'غير محدد');
+            const date = document.querySelector('input[type="text"]').value || new Date().toLocaleDateString(document.body.classList.contains('en-mode') ? 'en-US' : 'ar-AE');
+            const score = document.getElementById('res-total').textContent;
+            const successRate = document.getElementById('success-percent').textContent;
+            const sec1 = document.getElementById('sec1-score').textContent;
+            const sec2 = document.getElementById('sec2-score').textContent;
+            const sec3 = document.getElementById('sec3-score').textContent;
+            const sec4 = document.getElementById('sec4-score').textContent;
+            const sec5 = document.getElementById('sec5-score').textContent;
+
+            const isEnglish = document.body.classList.contains('en-mode');
+            let answersHTML = `<div dir="${isEnglish ? 'ltr' : 'rtl'}" style="font-family: '${isEnglish ? 'Inter' : 'Cairo'}', sans-serif;">
+                <h3 style="color:#4f46e5;">📊 ${isEnglish ? 'Performance Details - SAT Math Diagnostic:' : 'تفصيل الأداء - اختبار السات التشخيصي:'}</h3>
+                <p><strong>${isEnglish ? 'Student' : 'الطالب'}:</strong> ${name} | <strong>${isEnglish ? 'Class' : 'الشعبة'}:</strong> ${studentClass}</p>
+                <ul>
+                    <li>${isEnglish ? 'Algebra (Linear)' : 'الجبر (الخطي)'}: ${sec1}</li>
+                    <li>${isEnglish ? 'Advanced Math' : 'الرياضيات المتقدمة'}: ${sec2}</li>
+                    <li>${isEnglish ? 'Problem Solving & Data' : 'تحليل البيانات'}: ${sec3}</li>
+                    <li>${isEnglish ? 'Geometry & Trig' : 'الهندسة والمثلثات'}: ${sec4}</li>
+                    <li>${isEnglish ? 'Advanced SAT Concepts' : 'مفاهيم سات متقدمة'}: ${sec5}</li>
+                </ul>
+                <table style="border:1px solid #e5e7eb; border-collapse:collapse; width:100%; font-size:14px; direction: ${isEnglish ? 'ltr' : 'rtl'};">
+                <tr style="background:#4f46e5; color:white;"><th style="border:1px solid #e5e7eb; padding:8px;">${isEnglish ? 'Q' : 'س'}</th><th style="border:1px solid #e5e7eb; padding:8px;">${isEnglish ? 'Selected' : 'المختارة'}</th><th style="border:1px solid #e5e7eb; padding:8px;">${isEnglish ? 'Status' : 'الحالة'}</th></tr>`;
+            
+            const correctAnswers = ['c','b','a','a', 'c','b','b','b', 'c','c','d','b', 'b','b','b','c', 'a','b','c','a'];
+            for(let i=1; i<=20; i++) {
+                const sel = document.querySelector(`input[name="q${i}"]:checked`);
+                const isCorrect = sel && sel.value === correctAnswers[i-1];
+                answersHTML += `<tr><td style="border:1px solid #e5e7eb; padding:6px; text-align:center;">${i}</td><td style="border:1px solid #e5e7eb; padding:6px; text-align:center;">${sel ? sel.value.toUpperCase() : '-'}</td><td style="border:1px solid #e5e7eb; padding:6px; text-align:center; color:${isCorrect ? 'green' : 'red'}">${isCorrect ? (isEnglish ? '✅' : '✅') : (isEnglish ? '❌' : '❌')}</td></tr>`;
+            }
+            answersHTML += '</table></div>';
+
+            const templateParams = {
+                to_email: TARGET_EMAIL,
+                student_name: name,
+                exam_date: date,
+                total_score: score,
+                success_rate: successRate,
+                answers_table: answersHTML
+            };
+
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+                .then(() => {
+                    status.textContent = isEnglish ? '✅ Sent successfully! Check your Gmail.' : '✅ تم الإرسال بنجاح! تحقق من Gmail.';
+                    status.style.color = '#059669';
+                    btn.textContent = isEnglish ? '✓ Sent' : '✓ تم الإرسال';
+                })
+                .catch(err => {
+                    status.textContent = isEnglish ? '❌ Failed. Check console or setup.' : '❌ فشل الإرسال. تحقق من الإعدادات.';
+                    status.style.color = '#dc2626';
+                    btn.disabled = false;
+                    btn.textContent = isEnglish ? '📧 Retry Send' : '📧 إعادة المحاولة';
+                    console.error('EmailJS Error:', err);
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', startTimer);
+    </script>
+</body>
+</html>
